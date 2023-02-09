@@ -3,7 +3,6 @@ name: 'Rollback'
 
 on:
   workflow_call:
-    inputs:
     secrets:
       DOKKU_SSH_URL:
         required: true
