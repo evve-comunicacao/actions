@@ -4,14 +4,6 @@ name: 'Create a new Release'
 on:
   workflow_call:
     inputs:
-      app-env:
-        description: 'The environment to deploy to'
-        required: true
-        type: string
-      app-url:
-        description: 'The URL of the app'
-        required: true
-        type: string
       release-type:
         description: 'Release type'
         default: 'patch'
@@ -33,9 +25,6 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    environment:
-      name: ${{ inputs.app-env }}
-      url: ${{ inputs.app-url }}
     steps:
       -
         name: Cloning repository
