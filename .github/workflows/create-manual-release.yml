@@ -53,7 +53,7 @@ jobs:
       -
         name: Create Next Release Details
         run: |
-          NEW_RELEASE_TYPE=$(git log ${{ env.LATEST_RELEASE_TAG }}..HEAD --pretty=format:'%s' | grep -E '#(release|feat|feature|fix|patch|chore)' | head -1 | cut -d '#' -f 2)
+          NEW_RELEASE_TYPE="${{ inputs.release-type }}"
           echo "NEW_RELEASE_NOTES<<EOF_RELEASE_NOTES" >> $GITHUB_ENV
           echo "$(git log ${{ env.LATEST_RELEASE_TAG }}..HEAD --pretty=format:'%s')" >> $GITHUB_ENV
           echo "EOF_RELEASE_NOTES" >> $GITHUB_ENV
