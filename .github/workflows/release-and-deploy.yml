@@ -26,7 +26,6 @@ jobs:
     environment:
       name: ${{ inputs.app-env }}
       url: ${{ inputs.app-url }}
-    needs: test
     steps:
       -
         name: Cloning repository
@@ -36,7 +35,7 @@ jobs:
       -
         name: Fetching all tags
         run: |
-          git fetch --prune --unshallow --tags
+          git fetch --prune --tags
       -
         name: Get Latest Release Tag
         run: |
@@ -44,13 +43,15 @@ jobs:
       -
         name: Create Next Release Details
         run: |
-          echo "NEW_RELEASE_TYPE=$(git log ${{ env.LATEST_RELEASE_TAG }}..HEAD --pretty=format:'%s' | grep -E '#(release|feat|feature|fix|patch|chore)' | head -1 | cut -d '#' -f 2)" >> $GITHUB_ENV
-          echo "NEW_RELEASE_NOTES=$(git log ${{ env.LATEST_RELEASE_TAG }}..HEAD --pretty=format:'%s')" >> $GITHUB_ENV
-          if [[ ${{ env.NEW_RELEASE_TYPE }} == "chore" || ${{ env.NEW_RELEASE_TYPE }} == "fix" || ${{ env.NEW_RELEASE_TYPE }} == "patch" ]]; then
+          NEW_RELEASE_TYPE=$(git log ${{ env.LATEST_RELEASE_TAG }}..HEAD --pretty=format:'%s' | grep -E '#(release|feat|feature|fix|patch|chore)' | head -1 | cut -d '#' -f 2)
+          echo "NEW_RELEASE_NOTES<<EOF_RELEASE_NOTES" >> $GITHUB_ENV
+          echo "$(git log ${{ env.LATEST_RELEASE_TAG }}..HEAD --pretty=format:'%s')" >> $GITHUB_ENV
+          echo "EOF_RELEASE_NOTES" >> $GITHUB_ENV
+          if [[ $NEW_RELEASE_TYPE == "chore" || $NEW_RELEASE_TYPE == "fix" || $NEW_RELEASE_TYPE == "patch" ]]; then
             echo "NEW_RELEASE_VERSION_NUMBER=$(echo ${{ env.LATEST_RELEASE_TAG }} | awk -F. -v OFS=. '{$NF++; print}')" >> $GITHUB_ENV
-          elif [[ ${{ env.NEW_RELEASE_TYPE }} == "feat" || ${{ env.NEW_RELEASE_TYPE }} == "feature" ]]; then
+          elif [[ $NEW_RELEASE_TYPE == "feat" || $NEW_RELEASE_TYPE == "feature" ]]; then
             echo "NEW_RELEASE_VERSION_NUMBER=$(echo ${{ env.LATEST_RELEASE_TAG }} | awk -F. -v OFS=. '{$NF=0; $(NF-1)++; print}')" >> $GITHUB_ENV
-          elif [[ ${{ env.NEW_RELEASE_TYPE }} == "release" ]]; then
+          elif [[ $NEW_RELEASE_TYPE == "release" ]]; then
             echo "NEW_RELEASE_VERSION_NUMBER=$(echo ${{ env.LATEST_RELEASE_TAG }} | awk -F. -v OFS=. '{$NF=0; $(NF-1)=0; $(NF-2)++; print}')" >> $GITHUB_ENV
           else
             echo "NEW_RELEASE_VERSION_NUMBER=0.0.0" >> $GITHUB_ENV
